@@ -59,7 +59,7 @@ class UpdatesMod(loader.ModuleBase):
 
     async def mcub_handler(self) -> str:
         mcub_emoji = (
-            '<tg-emoji emoji-id="5285530631567095762">🔮</tg-emoji><tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji><tg-emoji emoji-id="">🔮</tg-emoji>'
+            '<tg-emoji emoji-id="5285530631567095762">🔮</tg-emoji><tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji>'
             if self.me.premium
             else "TETKO"
         )

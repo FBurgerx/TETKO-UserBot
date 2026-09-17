@@ -614,16 +614,16 @@ class SettingsModule(ModuleBase):
             await self.edit(event, self._s("piped_off"), parse_mode="html")
 
     @command("mcub", doc_ru="Инфo o TETKO", doc_en="Info TETKO", doc_uk="Інфо про TETKO")
-    async def cmd_mcub(self, event: events.NewMessage.Event) -> None:
+    async def cmd_tetko(self, event: events.NewMessage.Event) -> None:
         version_kernel = self.kernel.VERSION
         version_telethon = __version__
         branch = await self.kernel.version_manager.detect_branch()
         commit_sha = await self.kernel.version_manager.get_commit_sha()
         commit_url = await self.kernel.version_manager.get_github_commit_url()
         me = await self.client.get_me()
-        user = f'<tg-emoji emoji-id="{self.user_emojis.get(me.id, "5470015630302287916")}">{"Ⓜ️" if me.id in self.user_emojis else "🕳"}</tg-emoji>'
+        user = f'<tg-emoji emoji-id="{self.user_emojis.get(me.id, "5285530631567095762")}">{"Ⓜ️" if me.id in self.user_emojis else "🕳"}</tg-emoji>'
         mcub_emoji = (
-            f'{user}<tg-emoji emoji-id="5469945764069280010">🔮</tg-emoji><tg-emoji emoji-id="5469943045354984820">🔮</tg-emoji><tg-emoji emoji-id="5469879466954098867">🔮</tg-emoji>'
+            f'{user}<tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji>'
             if me.premium
             else "TETKO Userbot"
         )

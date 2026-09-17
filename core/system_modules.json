@@ -20,11 +20,11 @@
     },
     "installation": {
       "path": "modules/installation.py",
-      "sha256": "da526ec7d151461243a145290304aa3d963b6584ee4b4a78d67333cdf08fca16"
+      "sha256": "41855f3734287557a685fb352052e2f4809d14425c5a42ba2f2a6c1d0ed743a0"
     },
     "loader": {
       "path": "modules/loader.py",
-      "sha256": "a1dc24f37952eb6dafd1640b57ac5f7eaf3f1161109682daccefc45997dd11ce"
+      "sha256": "61a3dff470a8e1139c6a80848f79a01a8e46812e017f11bdc33474bd724775ef"
     },
     "log_bot": {
       "path": "modules/log_bot.py",
@@ -32,7 +32,7 @@
     },
     "settings": {
       "path": "modules/settings.py",
-      "sha256": "5647b1c4029753b10eb73dcc1968fe1b10bbec429d1ff9a34288bc9acf63aedb"
+      "sha256": "94d571f4311862bac862a9abcd7a56956f5cb1c091fdaa7ff4a59b892c995ae8"
     },
     "terminal": {
       "path": "modules/terminal.py",
@@ -52,7 +52,7 @@
     },
     "updates": {
       "path": "modules/updates.py",
-      "sha256": "f3f5c7aa6e1b630d66d5a50bc6be27c15f07435ad05a34e8a8aaae4f2eba673e"
+      "sha256": "cce134d8c5883aa6ce5bc262062593616ad3296835a8286b868eb820b1202522"
     },
     "userbot-backup": {
       "path": "modules/userbot-backup.py",
@@ -64,7 +64,7 @@
     },
     "TETKO_info": {
       "path": "modules/TETKO_info.py",
-      "sha256": "d1a43f627399a3ac055d2193c917a2f696b61af5fa8cfa436aba00688b93dc09"
+      "sha256": "03cfb49d9524a56e65d206358d39fd4aff436fa76ed474ec930180969ce1231a"
     },
     "tek": {
       "path": "modules/tek.py",
