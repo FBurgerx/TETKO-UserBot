@@ -537,8 +537,8 @@ man:
   module_already_hidden: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> <b>Module is already hidden.</b>
   module_unhidden: ✅ <b>Module removed from hidden.</b>
   module_not_hidden: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> <b>This module is not hidden.</b>
-  manhide_usage: '😕 Usage: <code>.manhide [module]</code>'
-  manunhide_usage: '😕 Usage: <code>.manunhide [module]</code>'
+  tekhide_usage: '😕 Usage: <code>.tekhide [module]</code>'
+  tekunhide_usage: '😕 Usage: <code>.tekunhide [module]</code>'
   system_module_note: "{blocked} <b>This is a system module, and it cannot simply be unloaded with a loader</b>"
   kernel_not_full_loaded: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> <b>The kernel has not yet fully loaded all modules</b>
     (<code>{status}</code>)

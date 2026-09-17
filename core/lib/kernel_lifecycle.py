@@ -61,7 +61,7 @@ class KernelLifecycleMixin:
             return
 
         # ═══ Очищаем экран ═══
-        sys.stdout.write("\033[2J\033[H")
+        # sys.stdout.write("\033[2J\033[H")  # временно отключено для отладки
 
         # ═══ Баннер с градиентом ═══
         try:

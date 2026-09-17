@@ -40,9 +40,9 @@ CUSTOM_EMOJI = {
 }
 
 ZERO_WIDTH_CHAR = "\u2060"
-MAN_MODULES_PER_PAGE_DEFAULT = 10
-MAN_MODULES_PER_PAGE_MIN = 1
-MAN_MODULES_PER_PAGE_MAX = 50
+TEK_MODULES_PER_PAGE_DEFAULT = 10
+TEK_MODULES_PER_PAGE_MIN = 1
+TEK_MODULES_PER_PAGE_MAX = 50
 
 _METADATA_CACHE: dict[str, tuple[float, dict]] = {}
 _METADATA_LOCKS: dict[int, asyncio.Lock] = {}
@@ -223,16 +223,16 @@ class TekModule(ModuleBase):
     # Full MCUB Man customization. The inline-bot-only setting/functionality is
     # deliberately omitted; normal userbot messages and media remain supported.
     config = ModuleConfig(
-        ConfigValue("man_quote_media", True, description="Send media in quotes", validator=Boolean()),
-        ConfigValue("man_banner_url", "", description="Banner image URL", validator=String()),
-        ConfigValue("man_invert_media", False, description="Invert media colors", validator=Boolean()),
-        ConfigValue("man_emoji_system_list", "▫️", description="Emoji for system modules", validator=String()),
-        ConfigValue("man_emoji_user_list", "▪️", description="Emoji for user modules", validator=String()),
-        ConfigValue("man_emoji", CUSTOM_EMOJI["crystal"], description="Main Man emoji", validator=String()),
-        ConfigValue("man_emoji_no_command", "❔", description="Emoji for modules without commands", validator=String()),
-        ConfigValue("man_modules_per_page", MAN_MODULES_PER_PAGE_DEFAULT, description="Modules per page", validator=Integer(min=MAN_MODULES_PER_PAGE_MIN, max=MAN_MODULES_PER_PAGE_MAX)),
-        ConfigValue("man_emoji_author", CUSTOM_EMOJI["alembic"], description="Emoji for author/module info", validator=String()),
-        ConfigValue("man_emoji_error", CUSTOM_EMOJI["blocked"], description="Emoji for errors", validator=String()),
+        ConfigValue("tek_quote_media", True, description="Send media in quotes", validator=Boolean()),
+        ConfigValue("tek_banner_url", "", description="Banner image URL", validator=String()),
+        ConfigValue("tek_invert_media", False, description="Invert media colors", validator=Boolean()),
+        ConfigValue("tek_emoji_system_list", "▫️", description="Emoji for system modules", validator=String()),
+        ConfigValue("tek_emoji_user_list", "▪️", description="Emoji for user modules", validator=String()),
+        ConfigValue("tek_emoji", CUSTOM_EMOJI["crystal"], description="Main Man emoji", validator=String()),
+        ConfigValue("tek_emoji_no_command", "❔", description="Emoji for modules without commands", validator=String()),
+        ConfigValue("tek_modules_per_page", TEK_MODULES_PER_PAGE_DEFAULT, description="Modules per page", validator=Integer(min=TEK_MODULES_PER_PAGE_MIN, max=TEK_MODULES_PER_PAGE_MAX)),
+        ConfigValue("tek_emoji_author", CUSTOM_EMOJI["alembic"], description="Emoji for author/module info", validator=String()),
+        ConfigValue("tek_emoji_error", CUSTOM_EMOJI["blocked"], description="Emoji for errors", validator=String()),
     )
 
     @staticmethod
@@ -267,12 +267,12 @@ class TekModule(ModuleBase):
     @staticmethod
     def _coerce_modules_per_page(value: Any) -> int:
         if isinstance(value, bool):
-            return MAN_MODULES_PER_PAGE_DEFAULT
+            return TEK_MODULES_PER_PAGE_DEFAULT
         try:
             parsed = int(value)
         except (TypeError, ValueError):
-            return MAN_MODULES_PER_PAGE_DEFAULT
-        return max(MAN_MODULES_PER_PAGE_MIN, min(MAN_MODULES_PER_PAGE_MAX, parsed))
+            return TEK_MODULES_PER_PAGE_DEFAULT
+        return max(TEK_MODULES_PER_PAGE_MIN, min(TEK_MODULES_PER_PAGE_MAX, parsed))
 
     @staticmethod
     def _parse_persisted_config(raw: Any) -> tuple[dict[str, Any], bool]:
@@ -306,10 +306,10 @@ class TekModule(ModuleBase):
         except Exception:
             return
         data, needs_save = self._parse_persisted_config(raw)
-        current = data.get("man_modules_per_page", MAN_MODULES_PER_PAGE_DEFAULT)
+        current = data.get("tek_modules_per_page", TEK_MODULES_PER_PAGE_DEFAULT)
         coerced = self._coerce_modules_per_page(current)
         if current != coerced:
-            data["man_modules_per_page"] = coerced
+            data["tek_modules_per_page"] = coerced
             needs_save = True
         if needs_save:
             with contextlib.suppress(Exception):
@@ -319,11 +319,11 @@ class TekModule(ModuleBase):
         cfg = getattr(self, "config", None)
         if cfg is None or not hasattr(cfg, "get"):
             return
-        current = cfg.get("man_modules_per_page", MAN_MODULES_PER_PAGE_DEFAULT)
+        current = cfg.get("tek_modules_per_page", TEK_MODULES_PER_PAGE_DEFAULT)
         coerced = self._coerce_modules_per_page(current)
         if current != coerced:
             with contextlib.suppress(Exception):
-                cfg["man_modules_per_page"] = coerced
+                cfg["tek_modules_per_page"] = coerced
 
     async def on_load(self) -> None:
         await self._repair_persisted_config()
@@ -524,7 +524,7 @@ class TekModule(ModuleBase):
     def _format_module_line(self, name: str, typ: str, module: Any, hidden: list[str], show_hidden: bool = False) -> str:
         target = getattr(module, "_class_instance", None) or module
         display_name = getattr(type(target), "name", name) if getattr(module, "_class_instance", None) else name
-        emoji = self.config.get("man_emoji_system_list", "▫️") if typ == "system" else self.config.get("man_emoji_user_list", "▪️")
+        emoji = self.config.get("tek_emoji_system_list", "▫️") if typ == "system" else self.config.get("tek_emoji_user_list", "▪️")
         commands, aliases, _ = self._commands(name)
         hidden_mark = f" {CUSTOM_EMOJI['eye_off']}" if show_hidden and name in hidden else ""
         cmd_parts = []
@@ -539,7 +539,7 @@ class TekModule(ModuleBase):
         if len(commands) > 3:
             cmd_parts.append(f"(+{len(commands)-3})")
         if not cmd_parts:
-            cmd_text = f"{self.config.get('man_emoji_no_command') or CUSTOM_EMOJI['snowflake']} {self._s('no_commands')}"
+            cmd_text = f"{self.config.get('tek_emoji_no_command') or CUSTOM_EMOJI['snowflake']} {self._s('no_commands')}"
         else:
             cmd_text = ", ".join(cmd_parts)
         # Translator information is intentionally hidden from the module list.
@@ -571,8 +571,8 @@ class TekModule(ModuleBase):
         fallback = metadata.get("description", s("no_description"))
         description = self.kernel._loader.pick_localized_text(i18n, lang, fallback)
 
-        msg = f"<blockquote>{self.config.get('man_emoji') or CUSTOM_EMOJI['dna']} <b>{html.escape(str(display_name))}</b> <i>(v{html.escape(str(metadata.get('version', '1.0.0')))}</i>)</blockquote>\n"
-        msg += f"<blockquote expandable>{self.config.get('man_emoji_author') or CUSTOM_EMOJI['alembic']} <i>{html.escape(str(description))}</i></blockquote>\n"
+        msg = f"<blockquote>{self.config.get('tek_emoji') or CUSTOM_EMOJI['dna']} <b>{html.escape(str(display_name))}</b> <i>(v{html.escape(str(metadata.get('version', '1.0.0')))}</i>)</blockquote>\n"
+        msg += f"<blockquote expandable>{self.config.get('tek_emoji_author') or CUSTOM_EMOJI['alembic']} <i>{html.escape(str(description))}</i></blockquote>\n"
         module_type = self._build_module_type_text(name, typ, module)
         if module_type:
             msg += f"<blockquote>{CUSTOM_EMOJI['tot']} <i>{html.escape(module_type)}</i></blockquote>\n"
@@ -584,7 +584,7 @@ class TekModule(ModuleBase):
             lines = []
             for cmd in commands:
                 cmd_desc = descriptions.get(cmd) or metadata.get("commands", {}).get(cmd) or f"{CUSTOM_EMOJI['confused']} {s('no_description')}"
-                line = f"{self.config.get('man_emoji_system_list' if typ == 'system' else 'man_emoji_user_list', CUSTOM_EMOJI['tot'])} <code>{self.kernel.custom_prefix}{html.escape(str(cmd))}</code> - <b>{html.escape(str(cmd_desc))}</b>"
+                line = f"{self.config.get('tek_emoji_system_list' if typ == 'system' else 'tek_emoji_user_list', CUSTOM_EMOJI['tot'])} <code>{self.kernel.custom_prefix}{html.escape(str(cmd))}</code> - <b>{html.escape(str(cmd_desc))}</b>"
                 if isinstance(aliases_info, dict) and aliases_info.get(cmd):
                     aliases = aliases_info[cmd]
                     if isinstance(aliases, str):
@@ -593,10 +593,10 @@ class TekModule(ModuleBase):
                 lines.append(line)
             msg += "\n".join(lines) + "\n"
         else:
-            msg += f"{self.config.get('man_emoji_no_command') or CUSTOM_EMOJI['snowflake']} {s('no_commands')}\n"
+            msg += f"{self.config.get('tek_emoji_no_command') or CUSTOM_EMOJI['snowflake']} {s('no_commands')}\n"
         msg += "</blockquote>"
         author = metadata.get("author", "unknown")
-        msg += f"<blockquote>{self.config.get('man_emoji_author') or CUSTOM_EMOJI['alembic']} <b>{s('author')}:</b> <i>{html.escape(str(author))}</i></blockquote>"
+        msg += f"<blockquote>{self.config.get('tek_emoji_author') or CUSTOM_EMOJI['alembic']} <b>{s('author')}:</b> <i>{html.escape(str(author))}</i></blockquote>"
         placeholder_docs = utils.config_placeholders(name)
         if placeholder_docs:
             msg += f"\n<blockquote expandable>{CUSTOM_EMOJI['map']} <b>{s('placeholders_title')}:</b>\n<i>{html.escape(placeholder_docs)}</i></blockquote>"
@@ -605,17 +605,17 @@ class TekModule(ModuleBase):
         return msg, self._normalize_http_url(metadata.get("banner_url"))
 
     async def _show(self, event: events.NewMessage.Event, text: str, banner_url: str = "") -> None:
-        configured = self._normalize_http_url(self.config.get("man_banner_url") or "")
+        configured = self._normalize_http_url(self.config.get("tek_banner_url") or "")
         banner = configured or banner_url
-        if banner and self.config.get("man_quote_media", False):
+        if banner and self.config.get("tek_quote_media", False):
             try:
-                await self._edit_with_banner_retry(event, text, file=InputMediaWebPage(banner, optional=True), parse_mode="html", invert_media=self.config.get("man_invert_media", False))
+                await self._edit_with_banner_retry(event, text, file=InputMediaWebPage(banner, optional=True), parse_mode="html", invert_media=self.config.get("tek_invert_media", False))
                 return
             except Exception:
                 pass
-        if banner and not self.config.get("man_quote_media", False):
+        if banner and not self.config.get("tek_quote_media", False):
             with contextlib.suppress(Exception):
-                await self._edit_with_banner_retry(event, text, file=banner, parse_mode="html", invert_media=self.config.get("man_invert_media", False))
+                await self._edit_with_banner_retry(event, text, file=banner, parse_mode="html", invert_media=self.config.get("tek_invert_media", False))
                 return
         await self.edit(event, text, parse_mode="html")
 
@@ -623,10 +623,10 @@ class TekModule(ModuleBase):
         all_modules = self._gather_all_modules(show_hidden, hidden)
         system = sorted((n, v) for n, v in all_modules.items() if v[0] == "system")
         user = sorted((n, v) for n, v in all_modules.items() if v[0] != "system")
-        per_page = self._coerce_modules_per_page(self.config.get("man_modules_per_page", 10))
+        per_page = self._coerce_modules_per_page(self.config.get("tek_modules_per_page", 10))
         chunks = [user[i:i+per_page] for i in range(0, len(user), per_page)] or [[]]
         page = max(0, min(page, len(chunks)-1))
-        msg = f"{self.config.get('man_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('system_modules')}:</b> <code>{len(system)}</code> | <code>{len(user)}</code>"
+        msg = f"{self.config.get('tek_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('system_modules')}:</b> <code>{len(system)}</code> | <code>{len(user)}</code>"
         if system:
             msg += "<blockquote expandable>" + "".join(self._format_module_line(n, t, m, hidden, show_hidden) for n, (t, m) in system) + "</blockquote>"
         current = chunks[page]
@@ -658,15 +658,15 @@ class TekModule(ModuleBase):
         if len(similar) == 1:
             return await self._build_module_detail(*similar[0])
         if similar:
-            msg = f"{self.config.get('man_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('found_modules')}:</b>\n<blockquote expandable>"
+            msg = f"{self.config.get('tek_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('found_modules')}:</b>\n<blockquote expandable>"
             for name, typ, module in similar[:20]:
                 msg += self._format_module_line(name, typ, module, hidden, show_hidden)
             msg += "</blockquote>\n<blockquote><i>" + self._s("no_exact_match") + f"</i> {CUSTOM_EMOJI['map']}</blockquote>"
             return msg, None
-        return f"<blockquote>{self.config.get('man_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('module_not_found')}</blockquote>", None
+        return f"<blockquote>{self.config.get('tek_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('module_not_found')}</blockquote>", None
 
-    @command("man", alias=["tek", "help"], doc_ru="<имя> список модулей или информация о модуле", doc_en="<name> module list or module information")
-    async def cmd_man(self, event: events.NewMessage.Event) -> None:
+    @command("tek", doc_ru="<имя> список модулей или информация о модуле", doc_en="<name> module list or module information")
+    async def cmd_tek(self, event: events.NewMessage.Event) -> None:
         try:
             raw = self.args_raw(event).strip()
             if not raw:
@@ -689,19 +689,19 @@ class TekModule(ModuleBase):
             await self._show(event, msg, banner)
         except Exception as e:
             self.log.error("Tek command error: %s\n%s", e, traceback.format_exc())
-            await self.edit(event, f"{self.config.get('man_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('error')}: <code>{html.escape(str(e)[:200])}</code>", parse_mode="html")
+            await self.edit(event, f"{self.config.get('tek_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('error')}: <code>{html.escape(str(e)[:200])}</code>", parse_mode="html")
 
-    @command("manhide", doc_ru="<имя> скрыть модуль из списка man", doc_en="<name> hide a module from man")
-    async def cmd_manhide(self, event: events.NewMessage.Event) -> None:
+    @command("tekhide", doc_ru="<имя> скрыть модуль из списка man", doc_en="<name> hide a module from man")
+    async def cmd_tekhide(self, event: events.NewMessage.Event) -> None:
         name = self.args_raw(event).strip()
         if not name:
-            await self.edit(event, self._s("manhide_usage"), parse_mode="html")
+            await self.edit(event, self._s("tekhide_usage"), parse_mode="html")
             return
         all_names = set(getattr(self.kernel, "system_modules", {})) | set(getattr(self.kernel, "loaded_modules", {}))
         if name not in all_names:
             matches = [n for n in all_names if name.casefold() in n.casefold()]
             if len(matches) != 1:
-                await self.edit(event, f"{self.config.get('man_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('module_not_found')}", parse_mode="html")
+                await self.edit(event, f"{self.config.get('tek_emoji_error') or CUSTOM_EMOJI['blocked']} {self._s('module_not_found')}", parse_mode="html")
                 return
             name = matches[0]
         hidden = await self._get_hidden_modules()
@@ -712,11 +712,11 @@ class TekModule(ModuleBase):
         await self._save_hidden_modules(hidden)
         await self.edit(event, f"{self._s('module_hidden')}\n<code>{html.escape(name)}</code>", parse_mode="html")
 
-    @command("manunhide", doc_ru="<имя> показать модуль в списке man", doc_en="<name> show a module in man")
-    async def cmd_manunhide(self, event: events.NewMessage.Event) -> None:
+    @command("tekunhide", doc_ru="<имя> показать модуль в списке man", doc_en="<name> show a module in man")
+    async def cmd_tekunhide(self, event: events.NewMessage.Event) -> None:
         name = self.args_raw(event).strip()
         if not name:
-            await self.edit(event, self._s("manunhide_usage"), parse_mode="html")
+            await self.edit(event, self._s("tekunhide_usage"), parse_mode="html")
             return
         hidden = await self._get_hidden_modules()
         if name not in hidden:
@@ -731,10 +731,10 @@ class TekModule(ModuleBase):
 
     @command("tekcfg", doc_ru="показать все настройки Tek", doc_en="show all Tek settings")
     async def cmd_tekcfg(self, event: events.NewMessage.Event) -> None:
-        lines = [f"{self.config.get('man_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('settings_title')}</b>"]
-        for key in ("man_quote_media", "man_banner_url", "man_invert_media", "man_emoji_system_list", "man_emoji_user_list", "man_emoji", "man_emoji_no_command", "man_modules_per_page", "man_emoji_author", "man_emoji_error"):
+        lines = [f"{self.config.get('tek_emoji') or CUSTOM_EMOJI['crystal']} <b>{self._s('settings_title')}</b>"]
+        for key in ("tek_quote_media", "tek_banner_url", "tek_invert_media", "tek_emoji_system_list", "tek_emoji_user_list", "tek_emoji", "tek_emoji_no_command", "tek_modules_per_page", "tek_emoji_author", "tek_emoji_error"):
             value = self.config.get(key)
-            if key == "man_banner_url" and value:
+            if key == "tek_banner_url" and value:
                 value = html.escape(str(value))
             else:
                 value = html.escape(str(value))

@@ -64,7 +64,7 @@
     },
     "tek": {
       "path": "modules/tek.py",
-      "sha256": "03b23146698b1f7abc0fa0039aa4a3affaa960a2e12d078f72c264f321ee4430"
+      "sha256": "9b97e3281219bdd812be67365c18e8e66b7eb4be7b1eff6af7f1aaad0a8781cf"
     },
     "ping": {
       "path": "modules/ping.py",

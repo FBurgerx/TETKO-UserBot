@@ -241,7 +241,7 @@ class CommandDispatcher:
                 "[process_command] alias recursion limit reached: %r",
                 getattr(event, "raw_text", None),
             )
-            await self.kernel.logger.info(
+            self.kernel.logger.info(
                 f"Alias recursion limit reached: {event.text}"
             )
             return False

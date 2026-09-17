@@ -422,8 +422,8 @@ man:
   module_already_hidden: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> Модуль вже прихований.
   module_unhidden: ✅ <b>Модуль прибрано з прихованих.</b>
   module_not_hidden: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> Цей модуль не прихований.
-  manhide_usage: '😕 Використання: <code>.manhide [модуль]</code>'
-  manunhide_usage: '😕 Використання: <code>.manunhide [модуль]</code>'
+  tekhide_usage: '😕 Використання: <code>.tekhide [модуль]</code>'
+  tekunhide_usage: '😕 Використання: <code>.tekunhide [модуль]</code>'
   system_module_note: "{blocked} <b>Це системний модуль, і його просто так не можна вивантажити loader'ом</b>"
   kernel_not_full_loaded: <tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> <b>Ядро ще не повністю завантажило всі модулі</b> (<code>{status}</code>)
   placeholders_title: Кастомні плейсхолдери
