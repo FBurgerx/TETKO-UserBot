@@ -1,0 +1,50 @@
+# ─── Runtime данные TETKO ───
+data/
+*.session
+*.session-journal
+*.db
+*.db-journal
+*.log
+
+# ─── Конфиги с секретами ───
+config.json
+config.local.json
+.env
+.env.local
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ─── Virtual env ───
+venv/
+env/
+.venv/
+ENV/
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Прочее ───
+*.bak
+*.tmp
+.cache/
+.pytest_cache/
+.release_version
