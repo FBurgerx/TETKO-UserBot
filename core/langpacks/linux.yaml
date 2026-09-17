@@ -47,7 +47,7 @@ langbutton:
 core_inline:
   no_access: "I'm sorry, but you don't have access!"
   no_access_id: 'ID'
-  mcub_bot_title: mcubd
+  mcub_bot_title: tetko
   version: uname -r
   modules: packages
   bot_limit_warn1: "Error: too many bots. rm one bot && retry"
@@ -134,7 +134,7 @@ terminal:
   config_update_interval: "stdout flush interval (sec, 1-30). Also triggered on SIGIO."
 
 command:
-  hello: <tg-emoji emoji-id="6012620675829734836">❤️</tg-emoji> mcubd v1 - running on TETKO
+  hello: <tg-emoji emoji-id="6012620675829734836">❤️</tg-emoji> tetko v1 - running on TETKO
   developers: 'Maintainers:'
   fork: 'fork:'
   original: 'upstream:'
@@ -146,11 +146,11 @@ command:
   prefix: 'Prefix:'
   kernel_version: 'uname -r:'
   profile_error: '<tg-emoji emoji-id="6010399722471168034">❔</tg-emoji> EACCES: cannot read /proc/profile'
-  goodbye: <tg-emoji emoji-id="6012610604131424315">🥺</tg-emoji> systemctl stop mcubd...
-  bot_removed: "mcubd.service: removed from chat"
-  delete_error: "EPERM: Failed to kill mcubd from chat"
-  hello_installed: <tg-emoji emoji-id="6012620675829734836">❤️</tg-emoji> "[  OK  ] mcubd installed and running!"
-  main_commands: 'man mcubd - available commands:'
+  goodbye: <tg-emoji emoji-id="6012610604131424315">🥺</tg-emoji> systemctl stop tetko...
+  bot_removed: "tetko.service: removed from chat"
+  delete_error: "EPERM: Failed to kill tetko from chat"
+  hello_installed: <tg-emoji emoji-id="6012620675829734836">❤️</tg-emoji> "[  OK  ] tetko installed and running!"
+  main_commands: 'man tetko - available commands:'
   new_prefix: new prefix
   module_name: name
   setprefix: 'setenv PREFIX'
@@ -300,8 +300,8 @@ api_protection:
   true: "iptables: DROP → ACCEPT"
   false: "iptables: ACCEPT → DROP"
   too_many_requests: "EUSERS: Too many requests - rate limited"
-  bot_stopped: '<tg-emoji emoji-id="5431895003821513760">❄️</tg-emoji> mcubd: SIGSTOP for <b>{seconds}</b>s'
-  bot_unlocked: '<tg-emoji emoji-id="5431895003821513760">❄️</tg-emoji> mcubd: SIGCONT after <b>{seconds}</b>s'
+  bot_stopped: '<tg-emoji emoji-id="5431895003821513760">❄️</tg-emoji> tetko: SIGSTOP for <b>{seconds}</b>s'
+  bot_unlocked: '<tg-emoji emoji-id="5431895003821513760">❄️</tg-emoji> tetko: SIGCONT after <b>{seconds}</b>s'
   request_limit_exceeded: "ECONNREFUSED: Request limit exceeded (<u>{limit_type}</u>)"
   insufficient_permissions: '<tg-emoji emoji-id="5388785832956016892">❌</tg-emoji> <b>EACCES: Permission denied</b>'
   limits_reset: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> <b>iptables -F - limits flushed</b>'
@@ -534,7 +534,7 @@ settings:
 
     • nice +10 (reduced priority)'
   inline_error: '❌ [STDERR]: {error}'
-  settings_title: ⚙️ "cat /etc/mcubd.conf"
+  settings_title: ⚙️ "cat /etc/tetko.conf"
   prefix_reset: <tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> "unset PREFIX - reset to <code>.</code>"
   aliases_cleared: <tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> "unalias -a - aliases cleared"
   api_enabled: <tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> enabled
@@ -550,7 +550,7 @@ translations:
   lang_changed: '<tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> locale-gen: locale set to: {lang}'
   select_language: '<tg-emoji emoji-id="5472164874886846699">✨</tg-emoji> locale-gen: select locale'
   reloadlang_done: 'locale-gen: reloaded from disk'
-  settings_inline_title: ⚙️ /etc/mcubd.conf
+  settings_inline_title: ⚙️ /etc/tetko.conf
   piped_usage: '<tg-emoji emoji-id="5767151002666929821">🚫</tg-emoji> Usage: {prefix}piped [on/off]'
   piped_on: '<tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> Pipeline <b>enabled</b>
 
@@ -558,7 +558,7 @@ translations:
   piped_off: '<tg-emoji emoji-id="5902002809573740949">✅</tg-emoji> Pipeline <b>disabled</b>
 
     <blockquote>Normal mode</blockquote>'
-  settings_inline_description: "cat /etc/mcubd.conf - daemon settings"
+  settings_inline_description: "cat /etc/tetko.conf - daemon settings"
   btn_reset_prefix: "unset PREFIX"
   btn_reset_alias: "unalias -a"
   btn_api_protection: '{status} iptables'
@@ -971,21 +971,21 @@ log_bot:
   setup_log_group: "🤖 [ .... ] Setting up journald group"
   searching_logs: "grep: error searching /var/log/mcub.log"
   creating_log_group: "📝 [ .... ] Creating log group..."
-  bot_prepare_error: "EFAULT: Failed to prepare mcubd for adding"
+  bot_prepare_error: "EFAULT: Failed to prepare tetko for adding"
   chat_id_error: "❌ ENOENT: Failed to get created chat ID"
   avatar_error: '<tg-emoji emoji-id="5411225658393134885">🗿</tg-emoji> EACCES: Failed to set avatar'
   invite_error: '<tg-emoji emoji-id="5411225658393134885">🗿</tg-emoji> EPERM: Failed to get invite link'
-  bot_added: "[  OK  ] mcubd added"
-  bot_add_error: '<tg-emoji emoji-id="5411225658393134885">🗿</tg-emoji> EFAULT: Failed to add mcubd after creation'
+  bot_added: "[  OK  ] tetko added"
+  bot_add_error: '<tg-emoji emoji-id="5411225658393134885">🗿</tg-emoji> EFAULT: Failed to add tetko after creation'
   chat_create_error: "❌ EFAULT: Chat creation error"
   log_setup_title: "[ .... ] Setting up journald group..."
   log_setup_success: "[  OK  ] journald group configured"
   log_setup_fail: "[FAILED] Failed to configure"
   test_title: "[ .... ] Testing log pipe..."
-  test_bot_available: "mcubd: active (running)"
-  test_bot_not_available: "mcubd: inactive (dead)"
-  test_bot_auth: "mcubd: authorized"
-  test_bot_not_auth: "mcubd: not authorized"
+  test_bot_available: "tetko: active (running)"
+  test_bot_not_available: "tetko: inactive (dead)"
+  test_bot_auth: "tetko: authorized"
+  test_bot_not_auth: "tetko: not authorized"
   test_log_chat_id: "journald chat ID"
   test_not_set: "not set"
   test_time: "time"
@@ -1001,9 +1001,9 @@ log_bot:
   errors_not_sent: "[FAILED] not sent"
   log_status_title: "journald status"
   log_group: "log group"
-  bot_sending: "pipe → mcubd"
+  bot_sending: "pipe → tetko"
   errors: "[STDERR]"
-  startup_via_bot: "[  OK  ] Startup message via mcubd"
+  startup_via_bot: "[  OK  ] Startup message via tetko"
   startup_via_userbot: "⚠️ Startup message via userbot"
   startup_error: "[FAILED] send error"
   send_log_error: "[FAILED] EPIPE: failed to send to log"
@@ -1047,9 +1047,9 @@ userbot_backup:
   auto_enabled: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> [  OK  ] mcub-backup.service: enabled'
   auto_disabled: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> [  OK  ] mcub-backup.service: disabled'
   chat_set: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> tee: backup chat → {chat_id}'
-  check_pm: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> Check your PM with mcubd'
-  bot_not_available: '<tg-emoji emoji-id="5409235172979672859">⚠️</tg-emoji> ECONNREFUSED: mcubd not available. Start a chat with mcubd first.'
-  cant_send_pm: '<tg-emoji emoji-id="5388785832956016892">❌</tg-emoji> EPIPE: Cannot send PM. Start a chat with mcubd first.'
+  check_pm: '<tg-emoji emoji-id="5118861066981344121">✅</tg-emoji> Check your PM with tetko'
+  bot_not_available: '<tg-emoji emoji-id="5409235172979672859">⚠️</tg-emoji> ECONNREFUSED: tetko not available. Start a chat with tetko first.'
+  cant_send_pm: '<tg-emoji emoji-id="5388785832956016892">❌</tg-emoji> EPIPE: Cannot send PM. Start a chat with tetko first.'
   invalid_chat_id: '<tg-emoji emoji-id="5388785832956016892">❌</tg-emoji> EINVAL: Invalid chat ID'
   unknown_command: '<tg-emoji emoji-id="5388785832956016892">❌</tg-emoji> bash: command not found'
   select_interval: '<tg-emoji emoji-id="5326015457155620929">🧳</tg-emoji> "crontab -e: select interval:"'
@@ -1091,7 +1091,7 @@ tester:
   freezing_usage: "{speech} Usage: {prefix}freezing [seconds]"
   freezing_range: "{speech} ERANGE: specify 1..60 seconds"
   freezing_number: "{speech} EINVAL: specify number of seconds"
-  freezing_start: "{snowflake} kill -SIGSTOP mcubd for {seconds}s..."
+  freezing_start: "{snowflake} kill -SIGSTOP tetko for {seconds}s..."
   freezing_done: "{check} kill -SIGCONT - unfrozen after {seconds}s"
   custom_text_error: "<b>[STDERR] custom text format: {error}</b>"
   logs: "/var/log/mcub.log"
@@ -1170,7 +1170,7 @@ trusted:
   watcher_enabled: '<tg-emoji emoji-id="5330561907671727296">✅</tg-emoji> <b>inotifywait: enabled:</b> <code>{module}.{watcher}</code>'
   watcher_not_found: '<tg-emoji emoji-id="5408830797513784663">🚫</tg-emoji> "ENOENT: watcher not found: <code>{module}.{watcher}</code>"'
   trustaccess_usage: '<tg-emoji emoji-id="5409117246062625941">⚙️</tg-emoji> Usage: <code>.trustaccess</code> (reply or @username or UID)'
-  trustaccess_footer: "<em>If access is off, mcubd will pipe the command to /dev/null.</em>"
+  trustaccess_footer: "<em>If access is off, tetko will pipe the command to /dev/null.</em>"
   trustaccess_title: "🔐 <b>ACL for {user}</b>"
   btn_close: 🙈 exit 0
   btn_allow_all: "chmod +x all"
@@ -1253,7 +1253,7 @@ access_categories:
     desc: "update, restart and system maintenance"
   inline:
     label: "Inline"
-    desc: "use inline cmds and mcubd"
+    desc: "use inline cmds and tetko"
   callback:
     label: "Callback"
     desc: "press callback buttons"
@@ -1267,7 +1267,7 @@ presets:
     label: 🛡 sudo
 
 config:
-  config_menu_text: "{menu_emoji} <b>vim /etc/mcubd.conf</b>\nChoose section:"
+  config_menu_text: "{menu_emoji} <b>vim /etc/tetko.conf</b>\nChoose section:"
   btn_kernel_config: 🪄 Kernel Config
   btn_modules_config: 🚂 Packages Config
   kernel_config_title: "{pencil} <b>Kernel Config</b>\n{page_emoji} pg <b>{page}/{total_pages}</b> ({total_keys} keys)"
@@ -1293,7 +1293,7 @@ config:
   reset_success: "♻️ git checkout -- done"
   changed_to: "✅ sysctl {value}"
   error: "❌ [STDERR]: {error}"
-  cfg_usage: "{gear} <b>vim /etc/mcubd.conf</b>: inline or <code>.cfg [key]</code> or <code>.cfg [now/hide/unhide] [key]</code>"
+  cfg_usage: "{gear} <b>vim /etc/tetko.conf</b>: inline or <code>.cfg [key]</code> or <code>.cfg [now/hide/unhide] [key]</code>"
   hidden_key: "{briefcase} <b>hidden</b>: <code>{key}</code>"
   key_not_found: "{ballot} <b>ENOKEY</b>: <code>{key}</code>"
   system_key: "{paperclip} <b>System key (protected)</b>"
@@ -1344,7 +1344,7 @@ config:
   fcfg_inline_id_not_found: "❌ ENOKEY: Key ID not found or TTL=0"
   fcfg_inline_protected: "❌ EPERM: This key is protected"
   fcfg_confirm_title: "✅ Confirm value"
-  fcfg_confirm_text: "Value will be piped to /etc/mcubd.conf"
+  fcfg_confirm_text: "Value will be piped to /etc/tetko.conf"
   fcfg_confirm_success: "✅ sysctl {key}={value} - done"
   fcfg_module_update: "✏️ sysctl <code>{key}</code> for <code>{module}</code> updated!\n<blockquote><i>Was: {old}</i>\n<b>Now:</b> <code>{new}</code></blockquote>"
   fcfg_confirm_error: "❌ [STDERR]: error updating config: {error}"
