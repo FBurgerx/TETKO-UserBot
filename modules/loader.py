@@ -267,10 +267,10 @@ class Loader(ModuleBase):
     async def _mcub_handler(self) -> str:
         me = await self.kernel.client.get_me()
         mcub_emoji = (
-            '<tg-emoji emoji-id="5470015630302287916">🔮</tg-emoji>'
-            '<tg-emoji emoji-id="5469945764069280010">🔮</tg-emoji>'
-            '<tg-emoji emoji-id="5469943045354984820">🔮</tg-emoji>'
-            '<tg-emoji emoji-id="5469879466954098867">🔮</tg-emoji>'
+            '<tg-emoji emoji-id="5285530631567095762">🔮</tg-emoji>'
+            '<tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji>'
+            '<tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji>'
+            '<tg-emoji emoji-id="">🔮</tg-emoji>'
             if me.premium
             else "TETKO"
         )

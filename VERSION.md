@@ -1,5 +1,8 @@
 # TETKO Version History
 
+## 0.0.7.0 (2026-09-17 15:18)
+- Auto-release
+
 ## 0.0.6.19 (2026-09-17 15:05)
 - Auto-release
 

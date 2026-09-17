@@ -73,9 +73,9 @@ class TekModule(ModuleBase):
     version = "3.0.0"
     author = "@flexOwnerAL"
     description = {
-        "ru": "Список модулей и их описание в стиле MCUB Man",
-        "uk": "Список модулів та їх опис у стилі MCUB Man",
-        "en": "Module list and descriptions with MCUB Man customization",
+        "ru": "Список модулей и их описание в стиле TETKO Man",
+        "uk": "Список модулів та їх опис у стилі TETKO Man",
+        "en": "Module list and descriptions with TETKO Man customization",
     }
 
     strings: dict | Strings = {
@@ -114,7 +114,7 @@ class TekModule(ModuleBase):
             "settings_bad_key": "Неизвестная настройка: <code>{}</code>",
             "settings_error": "Не удалось изменить настройку: {}",
             "translator_native": "native",
-            "translator_mcub": "mcub_compat_beta",
+            "translator_tetko": "tetko_compat_beta",
             "translator_hikka": "hikka_compat",
             "module_type_class": "native: class-style module",
             "module_type_kernel": "native: kernel-style module",
@@ -160,7 +160,7 @@ class TekModule(ModuleBase):
             "settings_bad_key": "Невідоме налаштування: <code>{}</code>",
             "settings_error": "Не вдалося змінити налаштування: {}",
             "translator_native": "native",
-            "translator_mcub": "mcub_compat_beta",
+            "translator_tetko": "tetko_compat_beta",
             "translator_hikka": "hikka_compat",
             "module_type_class": "native: class-style module",
             "module_type_kernel": "native: kernel-style module",
@@ -206,7 +206,7 @@ class TekModule(ModuleBase):
             "settings_bad_key": "Unknown setting: <code>{}</code>",
             "settings_error": "Could not change setting: {}",
             "translator_native": "native",
-            "translator_mcub": "mcub_compat_beta",
+            "translator_tetko": "tetko_compat_beta",
             "translator_hikka": "hikka_compat",
             "module_type_class": "native: class-style module",
             "module_type_kernel": "native: kernel-style module",
@@ -557,7 +557,7 @@ class TekModule(ModuleBase):
                 source = Path(path).read_text(encoding="utf-8", errors="ignore")
         markers = ("from .. import loader", "from .. import loader, utils", "from .. import utils, loader", "@loader.tds", "loader.Module")
         if any(marker in source for marker in markers):
-            return "🟠", self._s("translator_mcub")
+            return "🟠", self._s("translator_tetko")
         return "🟢", self._s("translator_native")
 
     async def _build_module_detail(self, name: str, typ: str, module: Any) -> tuple[str, str | None]:

@@ -117,13 +117,13 @@ class Installation(ModuleBase):
 
         emoji_id = self._OWNER_EMOJI.get(getattr(me, "id", 0))
         if emoji_id is None:
-            return '<tg-emoji emoji-id="5470015630302287916">🕳️</tg-emoji><tg-emoji emoji-id="5469945764069280010">Ⓜ️</tg-emoji><tg-emoji emoji-id="5469943045354984820">Ⓜ️</tg-emoji><tg-emoji emoji-id="5469879466954098867">Ⓜ️</tg-emoji>'
+            return '<tg-emoji emoji-id="5285530631567095762">🕳️</tg-emoji><tg-emoji emoji-id="5285030066013648645">Ⓜ️</tg-emoji><tg-emoji emoji-id="5285504668489785087">Ⓜ️</tg-emoji><tg-emoji emoji-id="">Ⓜ️</tg-emoji>'
 
         return (
             f'<tg-emoji emoji-id="{emoji_id}">🔮</tg-emoji>'
-            '<tg-emoji emoji-id="5469945764069280010">Ⓜ️</tg-emoji>'
-            '<tg-emoji emoji-id="5469943045354984820">Ⓜ️</tg-emoji>'
-            '<tg-emoji emoji-id="5469879466954098867">Ⓜ️</tg-emoji>'
+            '<tg-emoji emoji-id="5285030066013648645">Ⓜ️</tg-emoji>'
+            '<tg-emoji emoji-id="5285504668489785087">Ⓜ️</tg-emoji>'
+            '<tg-emoji emoji-id="">Ⓜ️</tg-emoji>'
         )
 
     def _build_buttons_choose_category(self) -> list[list[Any]]:

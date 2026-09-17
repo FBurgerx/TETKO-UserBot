@@ -520,9 +520,9 @@ class TETKOInfoMod(ModuleBase):
         if self.user_emojis is None:
             self.user_emojis = self.require_module("config").USER_EMOJI
 
-        user = f'<tg-emoji emoji-id="{self.user_emojis.get(me.id, "5470015630302287916")}">{"Ⓜ️" if me.id in self.user_emojis else "🕳"}</tg-emoji>'
+        user = f'<tg-emoji emoji-id="{self.user_emojis.get(me.id, "5285530631567095762")}">{"Ⓜ️" if me.id in self.user_emojis else "🕳"}</tg-emoji>'
         tetko_emoji = (
-            f'{user}<tg-emoji emoji-id="5469945764069280010">🔮</tg-emoji><tg-emoji emoji-id="5469943045354984820">🔮</tg-emoji><tg-emoji emoji-id="5469879466954098867">🔮</tg-emoji>'
+            f'{user}<tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji><tg-emoji emoji-id="">🔮</tg-emoji>'
             if me.premium
             else "TETKO Userbot"
         )
@@ -629,9 +629,9 @@ class TETKOInfoMod(ModuleBase):
             8405520863: "5470170528297817805",
             855890735: "5470063433288290290",
         }
-        user = f'<tg-emoji emoji-id="{user_emojis.get(me.id, "5470015630302287916")}">{"Ⓜ️" if me.id in user_emojis else "🕳"}</tg-emoji>'
+        user = f'<tg-emoji emoji-id="{user_emojis.get(me.id, "5285530631567095762")}">{"Ⓜ️" if me.id in user_emojis else "🕳"}</tg-emoji>'
         tetko_emoji = (
-            f'{user}<tg-emoji emoji-id="5469945764069280010">🔮</tg-emoji><tg-emoji emoji-id="5469943045354984820">🔮</tg-emoji><tg-emoji emoji-id="5469879466954098867">🔮</tg-emoji>'
+            f'{user}<tg-emoji emoji-id="5285030066013648645">🔮</tg-emoji><tg-emoji emoji-id="5285504668489785087">🔮</tg-emoji><tg-emoji emoji-id="">🔮</tg-emoji>'
             if me.premium
             else "TETKO Userbot"
         )
