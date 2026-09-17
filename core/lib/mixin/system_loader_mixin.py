@@ -195,7 +195,7 @@ class SystemLoaderMixin:
                     module._class_instance = instance
 
                     k.system_modules[module_name] = module
-                    k.logger.info(f"System module loaded [class-style]: {module_name}")
+                    k.logger.debug(f"System module loaded [class-style]: {module_name}")
                     await self.run_post_load(module, module_name, is_install=False)
                     return
                 k.logger.error(f"No register() in system module: {module_name}")
@@ -220,7 +220,7 @@ class SystemLoaderMixin:
                 module.register(k)
 
             k.system_modules[module_name] = module
-            k.logger.info(f"System module loaded: {module_name}")
+            k.logger.debug(f"System module loaded: {module_name}")
             await self.run_post_load(module, module_name, is_install=False)
 
         except CommandConflictError as e:

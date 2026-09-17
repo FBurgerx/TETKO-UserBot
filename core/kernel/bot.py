@@ -80,6 +80,14 @@ class Kernel(_StandardKernel):
 
         self._register_core_handlers()
 
+        # ═══ Получаем me ЮЗЕРА ДО загрузки модулей ═══
+        try:
+            me = await self.client.get_me()
+            self._cached_me = me  # для финального баннера
+        except Exception as e:
+            self.logger.warning(f"Could not get me: {e}")
+            me = None
+
         modules_start = time.time()
         await self.load_system_modules()
         if os.path.exists(self.RESTART_FILE):
@@ -89,7 +97,6 @@ class Kernel(_StandardKernel):
         await self.load_user_modules()
         modules_end = time.time()
 
-        me = await self.client.get_me()
         bot_name = getattr(me, "username", None) or getattr(me, "first_name", "bot")
         self.logger.info("TETKO bot started: @%s", bot_name)
         if os.path.exists(self.RESTART_FILE):

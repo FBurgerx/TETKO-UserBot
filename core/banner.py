@@ -20,13 +20,13 @@ BOLD = "\033[1m"
 COLOR_START = (220, 20, 20)     # ярко-красный
 COLOR_END = (255, 105, 180)     # hot pink
 
-# ASCII-арт TETKO (5 строк)
+# ASCII-арт TETKO (5 строк) — БЕЗ raw-строк, с двойными бэкслешами
 TETKO_ART = [
-    r"  _____ _____ _____ _  __ ___  ",
-    r" |_   _| ____|_   _| |/ / _ \ ",
-    r"   | | |  _|   | | | ' / | | |",
-    r"   | | | |___  | | | . \ |_| |",
-    r"   |_| |_____| |_| |_|\_\___/ ",
+    "  _____ _____ _____ _  __ ___  ",
+    " |_   _| ____|_   _| |/ / _ \\ ",
+    "   | | |  _|   | | | ' / | | |",
+    "   | | | |___  | | | . \\ |_| |",
+    "   |_| |_____| |_| |_|\\_\\___/ ",
 ]
 
 
@@ -38,7 +38,6 @@ def render_banner(version: str = "0.0.0.1", codename: str = "native") -> str:
     for line in TETKO_ART:
         colored_line = ""
         for i, char in enumerate(line):
-            # прогресс 0..1 по длине строки
             t = i / max(len(line) - 1, 1)
             rgb = _interpolate(COLOR_START, COLOR_END, t)
             colored_line += _rgb_to_ansi(rgb) + char

@@ -101,12 +101,6 @@ class Kernel(_StandardKernel):
         await self.load_user_modules()
         modules_end = time.time()
 
-        _mini_art = (
-            " ___  ___ ___ _  _ ___ \n"
-            "| \\/ |_ _| _ \\ || |_ _|\n"
-            "| |\\/| || ||  / __ || | \n"
-            "|_|  |_|___|_|_|_||_|___|"
-        )
         _mini_info = (
             f"\nMini kernel loaded.\n\n"
             f"• Version:  {self.VERSION}\n"
@@ -123,9 +117,6 @@ class Kernel(_StandardKernel):
         )
         logo = (
             "\n"
-            + self.Colors.gradient_multicolor(
-                _mini_art + _mini_info,
-                [(220, 20, 60), (255, 105, 180)],
                 bold=True,
             )
             + _mini_err

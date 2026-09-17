@@ -47,51 +47,105 @@ class KernelLifecycleMixin:
         )
 
     def _boot_status_begin(self) -> None:
-        """Clear the terminal, draw a fixed banner, and reserve a bottom status row."""
-        import shutil
-        import sys
-
-        if getattr(self, "_boot_status_active", False):
-            return
-
-        rows = max(shutil.get_terminal_size((80, 24)).lines, 12)
-        banner = Colors.gradient_multicolor(
-            self._boot_banner(),
-            [(190, 0, 0), (220, 20, 60), (255, 105, 180), (255, 150, 200)],
-            bold=True,
-        )
-        banner_lines = self._boot_banner().count("\n") + 1
-        scroll_top = banner_lines + 2
-        status_row = rows
-
-        self._boot_status_rows = rows
-        self._boot_scroll_top = scroll_top
-        self._boot_status_active = True
-
-        # Clear first. The banner lives above the scrolling log area.
-        sys.stdout.write("\033[2J\033[H")
-        sys.stdout.write(banner + "\n\n")
-        # Keep the banner fixed while logs scroll only below it.
-        sys.stdout.write(f"\033[1;{rows - 1}r")
-        sys.stdout.write(f"\033[{status_row};1H\033[2K")
-        sys.stdout.write(Colors.paint("Kernel loading..", Colors.BOLD, Colors.BRIGHT_YELLOW))
-        sys.stdout.write(f"\033[{scroll_top};1H")
-        sys.stdout.flush()
+        """Отключено — финальный баннер рисуется при TETKO loaded."""
+        # Ничего не делаем — убираем дублирующий баннер при старте
+        self._boot_status_active = False
+        return
 
     def _set_boot_status(self, status: str) -> None:
-        """Update the fixed bottom status row."""
+        """На TETKO loaded — очистить экран и показать красивый финал."""
         import sys
 
-        if not getattr(self, "_boot_status_active", False):
-            print(Colors.paint(str(status), Colors.BOLD, Colors.BRIGHT_YELLOW), flush=True)
+        if status != "TETKO loaded":
+            # Промежуточные статусы — игнорируем (чтобы не спамить)
             return
-        rows = getattr(self, "_boot_status_rows", 24)
-        color = Colors.BRIGHT_GREEN if status == "Kernel loaded" else Colors.BRIGHT_YELLOW
-        scroll_top = getattr(self, "_boot_scroll_top", 8)
-        sys.stdout.write(f"\033[{rows};1H\033[2K")
-        sys.stdout.write(Colors.paint(str(status), Colors.BOLD, color))
-        sys.stdout.write(f"\033[{scroll_top};1H")
+
+        # ═══ Очищаем экран ═══
+        sys.stdout.write("\033[2J\033[H")
+
+        # ═══ Баннер с градиентом ═══
+        try:
+            from core.banner import TETKO_ART, COLOR_START, COLOR_END, _interpolate, _rgb_to_ansi, RESET
+            for line in TETKO_ART:
+                colored = ""
+                for i, ch in enumerate(line):
+                    t = i / max(len(line) - 1, 1)
+                    rgb = _interpolate(COLOR_START, COLOR_END, t)
+                    colored += _rgb_to_ansi(rgb) + ch
+                sys.stdout.write(colored + RESET + "\n")
+        except Exception:
+            sys.stdout.write("  TETKO\n")
+
+        sys.stdout.write("\n")
+
+        # ═══ Версия (градиент) ═══
+        try:
+            from core.version import __version__
+            sub = f"  TETKO UserBot  v{__version__}  (native)"
+            colored = ""
+            for i, ch in enumerate(sub):
+                t = i / max(len(sub) - 1, 1)
+                rgb = _interpolate(COLOR_START, COLOR_END, t)
+                colored += _rgb_to_ansi(rgb) + ch
+            sys.stdout.write(colored + RESET + "\n")
+        except Exception:
+            pass
+
+        sys.stdout.write("\n")
+
+        # ═══ Инфо-строки ═══
+        GREEN = "\033[1;92m"
+        RESET = "\033[0m"
+
+        sys.stdout.write(f"{GREEN}[>] Kernel loaded successfully{RESET}\n")
+
+        # Account — пропущено
+
+        # Username inline bot — из self.inline_bot
+        try:
+            uname = None
+            # 1. Из inline_bot объекта
+            inline_bot = getattr(self, "inline_bot", None)
+            if inline_bot:
+                uname = getattr(inline_bot, "username", None)
+                if not uname:
+                    sess = getattr(inline_bot, "session", None)
+                    if sess:
+                        uname = getattr(sess, "username", None)
+            
+            # 2. Из cache
+            if not uname:
+                cache = getattr(self, "cache", None)
+                if cache:
+                    uname = cache.get("inline_bot_username")
+            
+            # 3. Из inline_username в конфиге
+            if not uname:
+                cfg = getattr(self, "config", None)
+                if cfg:
+                    uname = cfg.get("inline_bot_username")
+            
+            if uname:
+                sys.stdout.write(f"{GREEN}[>] Inline bot: @{uname}{RESET}\n")
+            else:
+                sys.stdout.write(f"{GREEN}[>] Inline bot: not connected{RESET}\n")
+        except Exception:
+            pass
+
+        # Модули — суммируем system + user
+        try:
+            sys_count = len(getattr(self, "system_modules", {}))
+            user_count = len(getattr(self, "loaded_modules", {}))
+            total = sys_count + user_count
+            sys.stdout.write(f"{GREEN}[>] Modules loaded: {total} (system: {sys_count}, user: {user_count}){RESET}\n")
+        except Exception:
+            pass
+
+        sys.stdout.write("\n")
+        sys.stdout.write(f"{GREEN}TETKO loaded{RESET}\n")
         sys.stdout.flush()
+
+        self._boot_status_active = False
 
     def _boot_status_end(self) -> None:
         """Release the reserved status row while leaving the banner intact."""
@@ -128,9 +182,9 @@ class KernelLifecycleMixin:
         import logging
 
         # Draw the fixed UI before any startup output so logs never appear above the banner.
-        self._boot_status_begin()
+        # self._boot_status_begin() — заменён на финальный вывод
         if getattr(self, "logger", None):
-            self.logger.info("TETKO starting")
+            self.logger.debug("TETKO starting")
 
         try:
             _true = install_uvloop()
@@ -311,20 +365,20 @@ class KernelLifecycleMixin:
 
         try:
             self.load_kernel = "system"
-            self.logger.info("Loading system modules")
+            self.logger.debug("Loading system modules")
             await self.load_system_modules()
         except Exception as e:
             self._log_if_logger("error", "load_system_modules failed: %s", e)
             await self.handle_error(e, message="System modules loading failed")
         try:
-            self.logger.info("Loading module sources")
+            self.logger.debug("Loading module sources")
             await self.load_module_sources()
         except Exception as e:
             self._log_if_logger("warning", "load_module_sources failed: %s", e)
             await self.handle_error(e, message="Module sources loading failed")
         try:
             self.load_kernel = "user"
-            self.logger.info("Loading user modules")
+            self.logger.debug("Loading user modules")
             await self.load_user_modules()
         except Exception as e:
             self._log_if_logger("error", "load_user_modules failed: %s", e)
@@ -337,8 +391,8 @@ class KernelLifecycleMixin:
             await self.handle_error(e, message="Type cache save failed")
 
         modules_end = time.time()
-        self._set_boot_status("Kernel loaded")
-        self.logger.info("Kernel loaded successfully: modules=%d, startup_time=%.2fs", len(getattr(self, "modules", {})), modules_end - modules_start)
+        self._set_boot_status("TETKO loaded")
+        # TETKO loaded — статус внизу (без дубля)
 
         if hasattr(self, "bot_client") and self.bot_client:
 
@@ -379,7 +433,7 @@ class KernelLifecycleMixin:
                                 f"Could not edit error message: {edit_err}"
                             )
 
-        self.logger.info("Kernel startup sequence completed")
+        # TETKO loaded — статус внизу (без дубля)
         self.load_kernel = "full"
 
         async def _memory_monitor():

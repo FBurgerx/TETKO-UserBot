@@ -26,10 +26,6 @@
       "path": "modules/loader.py",
       "sha256": "61a3dff470a8e1139c6a80848f79a01a8e46812e017f11bdc33474bd724775ef"
     },
-    "log_bot": {
-      "path": "modules/log_bot.py",
-      "sha256": "32665fb68ed5f04261a1ccd866b1b7871f4b6033fed266bee434b6d3a2462a11"
-    },
     "settings": {
       "path": "modules/settings.py",
       "sha256": "94d571f4311862bac862a9abcd7a56956f5cb1c091fdaa7ff4a59b892c995ae8"
@@ -73,6 +69,10 @@
     "ping": {
       "path": "modules/ping.py",
       "sha256": "bfede687cd4d9522b9ad3ab8e55f5755d89249bb69d01d104af94a22e550c824"
+    },
+    "log_bot": {
+      "path": "modules/log_bot.py",
+      "sha256": "32665fb68ed5f04261a1ccd866b1b7871f4b6033fed266bee434b6d3a2462a11"
     }
   }
 }

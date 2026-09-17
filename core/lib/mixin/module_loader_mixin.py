@@ -1013,7 +1013,7 @@ class ModuleLoaderMixin:
             else:
                 if is_system:
                     k.system_modules[module_name] = module
-                    k.logger.info(f"System module loaded: {module_name}")
+                    k.logger.debug(f"System module loaded: {module_name}")
                 else:
                     k.loaded_modules[module_name] = module
                     k.logger.info(f"User module loaded: {module_name}")
