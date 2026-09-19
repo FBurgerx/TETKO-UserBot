@@ -1,7 +1,7 @@
 {
     "api_id": 12345678,
     "api_hash": "0123456789abcdef0123456789abcdef",
-    "phone": "+10000000000",
+    "phone": "+100****0000",
     "command_prefix": ".",
     "aliases": {},
     "power_save_mode": false,
@@ -11,6 +11,7 @@
     "language": "en",
     "theme": "default",
     "proxy": null,
+    "protection_mode": "safe",
     "inline_bot_token": null,
     "inline_bot_username": null,
     "db_version": 2,

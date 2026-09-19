@@ -101,6 +101,19 @@ async def main():
 
     client = TelegramClient(session_name, api_id, api_hash)
 
+    # Telethon-Tetko по умолчанию работает в protection mode 'strict',
+    # который блокирует GetPasswordRequest. Из-за этого невозможно войти
+    # в аккаунт с облачным паролем (2FA) — client.start() падает с
+    # ScamModuleDetected ещё до ввода кода. Смягчаем до 'safe':
+    # GetPasswordRequest разрешён, удаление аккаунта/сброс сессий всё
+    # ещё под защитой. 'off' в config.json отключает проверку полностью.
+    protection_mode = cfg.get("protection_mode", "safe")
+    try:
+        client.set_protection_mode(protection_mode)
+        log.info(f"🛡 Protection mode: {protection_mode}")
+    except Exception as e:
+        log.warning(f"⚠ Не удалось установить protection mode {protection_mode!r}: {e}")
+
     log.info("📡 Подключение к Telegram...")
     await client.start(phone=phone)
 

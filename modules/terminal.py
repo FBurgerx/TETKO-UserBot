@@ -116,9 +116,15 @@ class TerminalModule(Module):
             return
 
         # ── executing ──
+        # Команда остаётся в сообщении всегда: результат дописывается
+        # ниже, через две пустые строки. Финальный текст = header + результат.
+        header = (
+            f"<blockquote><b>$</b> <code>{_esc(cmd)}</code></blockquote>"
+            "\n\n\n"
+        )
+
         await event.edit(
-            f"<blockquote><b>executing:</b>\n"
-            f"<code>{_esc(cmd)}</code></blockquote>",
+            header + "<i>executing…</i>",
             parse_mode="html",
         )
 
@@ -137,8 +143,9 @@ class TerminalModule(Module):
                 proc.kill()
                 await proc.wait()
                 await event.edit(
-                    f"<b>❌ Error:</b>\n"
-                    f"<blockquote><code>timeout ({CMD_TIMEOUT}s)</code></blockquote>",
+                    header
+                    + "<b>❌ Error:</b>\n"
+                    + f"<blockquote><code>timeout ({CMD_TIMEOUT}s)</code></blockquote>",
                     parse_mode="html",
                 )
                 return
@@ -157,8 +164,9 @@ class TerminalModule(Module):
                     truncated = True
 
                 text = (
-                    f"<b>✅ Successfully:</b>\n"
-                    f"<blockquote><pre>{_esc(output)}</pre></blockquote>"
+                    header
+                    + "<b>✅ Result:</b>\n"
+                    + f"<blockquote><pre>{_esc(output)}</pre></blockquote>"
                 )
                 if truncated:
                     text += f"\n<i>(truncated to {MAX_OUTPUT} chars)</i>"
@@ -173,15 +181,17 @@ class TerminalModule(Module):
 
             err_clean = _clean_error(err)
             await event.edit(
-                f"<b>❌ Error:</b>\n"
-                f"<blockquote><code>{_esc(err_clean)}</code></blockquote>",
+                header
+                + "<b>❌ Error:</b>\n"
+                + f"<blockquote><code>{_esc(err_clean)}</code></blockquote>",
                 parse_mode="html",
             )
 
         except Exception as e:
             log.exception("terminal command failed")
             await event.edit(
-                f"<b>❌ Error:</b>\n"
-                f"<blockquote><code>{_esc(str(e))}</code></blockquote>",
+                header
+                + "<b>❌ Error:</b>\n"
+                + f"<blockquote><code>{_esc(str(e))}</code></blockquote>",
                 parse_mode="html",
             )
