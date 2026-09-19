@@ -1,6 +1,6 @@
 # TETKO Version History
 
-## 0.0.9.7 (2026-09-19)
+## 0.0.9.8 (2026-09-19)
 - fix: _is_system works on Windows paths
 
 ## 0.0.9.6 (2026-09-19)

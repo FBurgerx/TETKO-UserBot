@@ -30,6 +30,9 @@ class ModuleLoader:
         # Пользовательские модули (скачанные, локальные)
         self.custom_dir = Path("modules_custom")
         self.custom_dir.mkdir(parents=True, exist_ok=True)
+        # Имя класса модуля → его реальное имя в sys.modules
+        # (имя файла может отличаться от имени класса: dlm.py → DLM)
+        self._spec_names: dict[str, str] = {}
 
     async def load_module_from_file(self, file_path: str | Path) -> Module:
         """Загрузить модуль из .py файла."""
@@ -81,6 +84,7 @@ class ModuleLoader:
 
         mod_instance = module_class(kernel=self.kernel)
         self.registry.register_module(mod_instance)
+        self._spec_names[mod_instance.name] = module_spec_name
 
         for attr_name in dir(mod_instance):
             attr = getattr(mod_instance, attr_name)
@@ -138,7 +142,11 @@ class ModuleLoader:
 
         self.registry.unregister_module(name)
 
-        full_name = f"tetko_user_modules.{name}"
+        # sys.modules чистится по реальному spec-имени модуля.
+        # Имя файла и имя класса могут отличаться (dlm.py → DLM),
+        # поэтому связка берётся из _spec_names. Без этого модуль
+        # навсегда остаётся в sys.modules и блокирует повторную загрузку.
+        full_name = self._spec_names.pop(name, f"tetko_user_modules.{name}")
         sys.modules.pop(full_name, None)
 
         log.info(f"🗑 Модуль {name} выгружен")

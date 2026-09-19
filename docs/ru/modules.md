@@ -83,8 +83,9 @@
         if data == "my_button":
             await event.answer("Нажато!")
 
-ВНИМАНИЕ: @callback пока регистрируется, но не подключён к событиям
-Telethon. Будет позже.
+Декоратор регистрируется и подключён к events.CallbackQuery ядра.
+Но на практике для кнопок удобнее использовать inline-меню — см. п. 12:
+там callback-хендлер задаётся прямо при создании кнопки.
 
 
 3.4. @loop(interval=секунды) — периодическая задача
@@ -236,8 +237,10 @@ Namespace — обычно имя модуля.
   - Не использовать core_inline.*, utils.strings.Strings, core.langpacks —
     не подключены.
   - Не использовать kernel.db_get — есть db_get(namespace, key).
-  - Не использовать kernel.inline.form(...) — inline-меню пока нет.
   - Не использовать kernel.ADMIN_ID — есть self.kernel.context.admin_id.
+
+  Папки modules_legacy/ и core_inline/ содержат старый код ядра MCUB.
+  Они не загружаются и не подключены — не используй их в модулях.
 
 
 11. Если чего-то не хватает
@@ -248,7 +251,59 @@ Namespace — обычно имя модуля.
 Не тащи из старого кода.
 
 
-12. Что готово в ядре сейчас
+12. Inline-меню (кнопки в любом чате)
+-------------------------------------
+
+Для кнопок не нужны @callback-хендлеры — хендлер задаётся прямо
+при создании кнопки и живёт 10 минут (TTL).
+
+    from core.tetko import Module, command
+
+
+    class MyModule(Module):
+        name = "MyModule"
+        __compat__ = "0.0.9.0"
+        version = "1.0.0"
+
+        @command(name="menu")
+        async def menu_cmd(self, event, args):
+            inline = self.kernel.inline
+
+            async def on_click(cb_event):
+                await cb_event.answer("Кнопка нажата!")
+                await inline.edit(cb_event, "Новый текст")
+
+            buttons = [[inline.make_button("Нажми", on_click, ttl=600)]]
+
+            bot = getattr(self.kernel, "bot_client", None)
+            chat_id = event.chat_id
+            try:
+                await event.delete()
+            except Exception:
+                pass
+
+            if bot is not None:
+                await bot.send_inline_menu(
+                    chat_id=chat_id,
+                    key=f"mymenu_{int(time.time())}",
+                    text="Заголовок меню",
+                    buttons=buttons,
+                )
+            else:
+                await inline.form(chat_id, "Заголовок меню", buttons)
+
+Отправка через bot.send_inline_menu() работает в любом чате,
+боту не обязательно там присутствовать. Для смены содержимого —
+inline.edit(event, text, new_buttons).
+
+Ограничения inline-кнопок:
+  - data не больше 64 байт (токен обрезается автоматически)
+  - премиум-эмодзи в label кнопок не вставить, только текст
+  - у callback-события chat_id = 0, поэтому чат вычисляется
+    через get_input_chat() (inline.edit делает это сам)
+
+
+13. Что готово в ядре сейчас
 ----------------------------
 
 Работает:
@@ -260,17 +315,19 @@ Namespace — обычно имя модуля.
   - only_for="owner"
   - проверка __compat__
   - баннер, console_reader
+  - модули из modules/ и modules_custom/
+  - inline-меню с кнопками и edit-in-place
+  - динамическая загрузка/выгрузка модулей (.load / .unload)
+  - автоопределение admin_id при первом старте
+  - премиум-эмодзи (<tg-emoji>) в текстах сообщений
 
-В работе:
-  - @callback не подключён к events.CallbackQuery
-  - нет локализации
-  - нет inline-меню
-  - нет modules_custom/
-  - нет hot-reload
-  - нет прав кроме only_for="owner"
+Внесены в старую версию, но уже неактуально:
+  - раньше inline-меню не было — теперь есть (п. 12)
+  - раньше @callback не был подключён — теперь подключён
+  - раньше не было modules_custom/ — теперь есть
 
 
-13. Минимальная заготовка — копируй и пиши
+14. Минимальная заготовка — копируй и пиши
 ------------------------------------------
 
     """НазваниеМодуля — краткое описание."""

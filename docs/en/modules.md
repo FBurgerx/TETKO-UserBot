@@ -76,16 +76,18 @@ Example with arguments:
             await event.delete()
 
 
-3.3. @callback() — inline buttons
+3.3. @callback() — inline button reactions
 
     @callback()
     async def on_button(self, event):
         data = event.data.decode() if isinstance(event.data, bytes) else event.data
         if data == "my_button":
-            await event.answer("Pressed!")
+            await event.answer("Clicked!")
 
-NOTE: @callback is registered but not yet hooked into Telethon's
-CallbackQuery events. Coming soon.
+The decorator is registered and hooked into the kernel's
+events.CallbackQuery. In practice, inline menus are more convenient for
+buttons — see section 12: the callback handler is specified right when
+the button is created.
 
 
 3.4. @loop(interval=seconds) — periodic task
@@ -237,19 +239,74 @@ If not owner — reply: "🚫 This command is for the owner only."
   - Don't use core_inline.*, utils.strings.Strings, core.langpacks —
     not wired into the new kernel.
   - Don't use kernel.db_get — use db_get(namespace, key).
-  - Don't use kernel.inline.form(...) — inline menus not yet available.
   - Don't use kernel.ADMIN_ID — use self.kernel.context.admin_id.
+
+  The modules_legacy/ and core_inline/ folders contain the old MCUB
+  kernel code. They are not loaded and not wired in — don't use them
+  in modules.
 
 
 11. If something is missing
 ---------------------------
 
-If a module needs functionality that's not in the API yet (inline menus,
-localization, groups, ACL categories) — tell the kernel developer.
+If a module needs functionality that's not in the API yet (localization,
+groups, ACL categories) — tell the kernel developer.
 Don't copy from the old code.
 
 
-12. Kernel status right now
+12. Inline menus (buttons in any chat)
+---------------------------------------
+
+You don't need @callback handlers for buttons — the handler is specified
+right when the button is created and lives for 10 minutes (TTL).
+
+    from core.tetko import Module, command
+
+
+    class MyModule(Module):
+        name = "MyModule"
+        __compat__ = "0.0.9.0"
+        version = "1.0.0"
+
+        @command(name="menu")
+        async def menu_cmd(self, event, args):
+            inline = self.kernel.inline
+
+            async def on_click(cb_event):
+                await cb_event.answer("Button clicked!")
+                await inline.edit(cb_event, "New text")
+
+            buttons = [[inline.make_button("Click me", on_click, ttl=600)]]
+
+            bot = getattr(self.kernel, "bot_client", None)
+            chat_id = event.chat_id
+            try:
+                await event.delete()
+            except Exception:
+                pass
+
+            if bot is not None:
+                await bot.send_inline_menu(
+                    chat_id=chat_id,
+                    key=f"mymenu_{int(time.time())}",
+                    text="Menu title",
+                    buttons=buttons,
+                )
+            else:
+                await inline.form(chat_id, "Menu title", buttons)
+
+Sending via bot.send_inline_menu() works in any chat — the bot doesn't
+need to be present there. To change the contents —
+inline.edit(event, text, new_buttons).
+
+Inline button limitations:
+  - data is at most 64 bytes (the token is truncated automatically)
+  - premium emoji can't be put into a button label, only plain text
+  - chat_id is 0 for a callback event, so the chat is resolved via
+    get_input_chat() (inline.edit does this itself)
+
+
+13. Kernel status right now
 ---------------------------
 
 Working:
@@ -261,17 +318,19 @@ Working:
   - only_for="owner"
   - __compat__ check
   - banner, console_reader
+  - modules from modules/ and modules_custom/
+  - inline menus with buttons and edit-in-place
+  - dynamic module loading/unloading (.load / .unload)
+  - admin_id auto-detection on first start
+  - premium emoji (<tg-emoji>) in message texts
 
-In progress:
-  - @callback not hooked into events.CallbackQuery
-  - no localization
-  - no inline menus
-  - no modules_custom/
-  - no hot-reload
-  - no permissions beyond only_for="owner"
+Present in an earlier version, but no longer relevant:
+  - inline menus used to be missing — now they exist (section 12)
+  - @callback used to be unhooked — now it is hooked in
+  - modules_custom/ used to be missing — now it exists
 
 
-13. Minimal template — copy and start
+14. Minimal template — copy and start
 -------------------------------------
 
     """ModuleName — short description."""
