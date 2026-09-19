@@ -41,6 +41,34 @@ class EventDispatcher:
             return self.context.is_trusted(user_id)
         return True
 
+    async def _notify(self, client: Any, event: Any, text: str) -> None:
+        """Ответить пользователю.
+
+        event.edit() работает только для собственных сообщений владельца.
+        Если команду прислал кто-то другой — edit молча падает и бот
+        кажется «немым». Поэтому: владелец → edit, остальные → новое
+        сообщение (reply).
+        """
+        from_id = getattr(event, "sender_id", None)
+        owner_id = getattr(self.context, "admin_id", None) if self.context else None
+        is_own = (
+            from_id is not None
+            and owner_id is not None
+            and int(from_id) == int(owner_id)
+        )
+        if is_own:
+            try:
+                await event.edit(text, parse_mode="html")
+                return
+            except Exception:
+                pass
+        try:
+            await client.send_message(
+                event.chat_id, text, parse_mode="html", reply_to=event.id
+            )
+        except Exception:
+            pass
+
     async def handle_message(self, client: Any, event: Any) -> None:
         """Обработка входящих сообщений Telegram."""
         text = getattr(event, "raw_text", "") or ""
@@ -65,10 +93,9 @@ class EventDispatcher:
                                 "owner": "только для владельца",
                                 "trusted": "только для доверенных",
                             }.get(command.only_for, command.only_for)
-                            try:
-                                await event.edit(f"🚫 Эта команда {label}.")
-                            except Exception:
-                                pass
+                            await self._notify(
+                                client, event, f"🚫 Эта команда {label}."
+                            )
                             return
 
                     try:
@@ -88,23 +115,20 @@ class EventDispatcher:
                             f"⏳ FloodWait {fw.seconds}s на команде .{cmd_name}; "
                             f"спим {wait}s"
                         )
-                        try:
-                            await event.edit(
-                                f"⏳ Telegram просит подождать <code>{fw.seconds}s</code>. "
-                                f"Команда выполнится после.",
-                                parse_mode="html",
-                            )
-                        except Exception:
-                            pass
+                        await self._notify(
+                            client,
+                            event,
+                            f"⏳ Telegram просит подождать <code>{fw.seconds}s</code>. "
+                            f"Команда выполнится после.",
+                        )
                         await asyncio.sleep(wait)
                     except Exception as e:
                         log.exception(f"Ошибка выполнения команды .{cmd_name}")
-                        try:
-                            await event.edit(
-                                f"❌ Ошибка в команде `.{cmd_name}`:\n`{e}`"
-                            )
-                        except Exception:
-                            pass
+                        await self._notify(
+                            client,
+                            event,
+                            f"❌ Ошибка в команде <code>.{cmd_name}</code>:\n<code>{e}</code>",
+                        )
                     return
 
         # 2. Watchers

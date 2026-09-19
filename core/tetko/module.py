@@ -39,6 +39,51 @@ class Module:
     async def on_load(self) -> None:
         pass
 
+    # ─── Ответы ───
+    async def respond(self, event, text: str, parse_mode=None):
+        """Универсальный ответ на команду.
+
+        Юзербот отвечает через event.edit() — но отредактировать можно
+        только своё сообщение. Если команду прислал другой пользователь,
+        edit() молча падает, и ответ никто не видит: кажется, что бот
+        «молчит».
+
+        Метод сам решает:
+          - владелец → edit (классическое поведение юзербота)
+          - другой пользователь → send_message новым сообщением
+        """
+        from_id = getattr(event, "sender_id", None)
+        owner_id = None
+        if self.kernel is not None:
+            ctx = getattr(self.kernel, "context", None)
+            if ctx is not None:
+                owner_id = getattr(ctx, "admin_id", None)
+
+        is_own = (
+            from_id is not None
+            and owner_id is not None
+            and int(from_id) == int(owner_id)
+        )
+
+        if is_own:
+            try:
+                return await event.edit(text, parse_mode=parse_mode)
+            except Exception:
+                pass
+
+        chat_id = getattr(event, "chat_id", None)
+        reply_to = getattr(event, "id", None)
+        client = self.client
+        if client is None:
+            return None
+        try:
+            return await client.send_message(
+                chat_id, text, parse_mode=parse_mode, reply_to=reply_to
+            )
+        except Exception as e:
+            self._logger.warning(f"respond: не удалось отправить ответ: {e}")
+            return None
+
     async def on_unload(self) -> None:
         pass
 
