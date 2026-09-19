@@ -1,8 +1,11 @@
 """Dispatcher — обработчик входящих событий Telegram для TETKO."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any, Optional
+
+from telethon import errors
 
 from core.tetko.context import Context
 from core.tetko.registry import Registry
@@ -23,6 +26,21 @@ class EventDispatcher:
         self.prefix = prefix
         self.context = context
 
+    def _check_access(self, only_for: Optional[str], user_id: Optional[int]) -> bool:
+        """Проверка прав на команду.
+
+        only_for=None     — всем
+        only_for="owner"  — только владелец
+        only_for="trusted" — владелец + доверенные
+        """
+        if self.context is None:
+            return True
+        if only_for == "owner":
+            return self.context.is_owner(user_id)
+        if only_for == "trusted":
+            return self.context.is_trusted(user_id)
+        return True
+
     async def handle_message(self, client: Any, event: Any) -> None:
         """Обработка входящих сообщений Telegram."""
         text = getattr(event, "raw_text", "") or ""
@@ -38,11 +56,17 @@ class EventDispatcher:
                 command = self.registry.find_command(cmd_name)
                 if command:
                     # ── Проверка прав ──
-                    if command.only_for == "owner":
+                    if command.only_for:
                         sender_id = getattr(event, "sender_id", None)
-                        if self.context is None or not self.context.is_owner(sender_id):
+                        if self.context is None or not self._check_access(
+                            command.only_for, sender_id
+                        ):
+                            label = {
+                                "owner": "только для владельца",
+                                "trusted": "только для доверенных",
+                            }.get(command.only_for, command.only_for)
                             try:
-                                await event.edit("🚫 Эта команда только для владельца.")
+                                await event.edit(f"🚫 Эта команда {label}.")
                             except Exception:
                                 pass
                             return
@@ -56,6 +80,23 @@ class EventDispatcher:
                                 pass
 
                         await command.call(client, event, cmd_args)
+                    except errors.FloodWaitError as fw:
+                        # Telegram просит подождать — подчиняемся, а не падаем.
+                        # Иначе юзербот умирает от блокировки аккаунта.
+                        wait = min(fw.seconds, 600)
+                        log.warning(
+                            f"⏳ FloodWait {fw.seconds}s на команде .{cmd_name}; "
+                            f"спим {wait}s"
+                        )
+                        try:
+                            await event.edit(
+                                f"⏳ Telegram просит подождать <code>{fw.seconds}s</code>. "
+                                f"Команда выполнится после.",
+                                parse_mode="html",
+                            )
+                        except Exception:
+                            pass
+                        await asyncio.sleep(wait)
                     except Exception as e:
                         log.exception(f"Ошибка выполнения команды .{cmd_name}")
                         try:

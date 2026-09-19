@@ -31,6 +31,8 @@ class Context:
         self.config = dict(config or {})
         # заполняется при kernel.start() — есть ли у владельца Telegram Premium
         self.user_premium: bool = False
+        # кэш доверенных пользователей (set of int), наполняется Trusted-модулем
+        self.trusted: set[int] = set()
 
         # Хук на централизованную обработку ошибок (можно переопределить)
         self._error_handler = None
@@ -41,6 +43,18 @@ class Context:
         if user_id is None or self.admin_id is None:
             return False
         return int(user_id) == int(self.admin_id)
+
+    # ─── Доверенные ───
+    def is_trusted(self, user_id: Optional[int]) -> bool:
+        """Проверка: пользователь доверенный? (владелец — тоже доверенный)"""
+        if self.is_owner(user_id):
+            return True
+        if user_id is None:
+            return False
+        try:
+            return int(user_id) in self.trusted
+        except (TypeError, ValueError):
+            return False
 
     # ─── Ошибки ───
     def set_error_handler(self, handler) -> None:

@@ -227,7 +227,98 @@ Namespace — обычно имя модуля.
             self.log.debug("tick")
 
 
-10. Чего НЕ делать
+## 11. Доверенные пользователи
+
+Помимо владельца есть уровень **`trusted`** — доверенные пользователи.
+
+```python
+from core.tetko import command
+
+@command(name="mycmd", only_for="trusted")
+async def cmd(self, event, args):
+    ...
+```
+
+| `only_for` | Кто может выполнять |
+|---|---|
+| `None` (по умолчанию) | Все |
+| `"trusted"` | Владелец + доверенные |
+| `"owner"` | Только владелец |
+
+Управление:
+
+```
+.trust @username    — добавить
+.untrust @username  — убрать
+.trusted            — список
+```
+
+Список доверенных хранится в БД и доступен из кода:
+
+```python
+from core.tetko import db_get, db_set
+
+users: list[int] = db_get("trusted", "users", [])
+db_set("trusted", "users", [123456])
+```
+
+Inline-кнопки тоже проверяют права: доверенные могут нажимать `@callback`.
+
+## 12. HotReload — изменения на лету
+
+Модуль следит за `modules/` и `modules_custom/`. Любой изменённый `.py`
+файл автоматически выгружается и загружается с новым кодом — перезапуск
+не нужен.
+
+```
+.hotreload        — вкл/выкл
+.hotreload now    — применить все изменения немедленно
+.hotreload check  — показать, что изменилось
+```
+
+Уведомления о применённых изменениях приходят владельцу в ЛС.
+
+## 13. Backup — резервные копии
+
+```
+.backup           — создать и отправить архив
+.backup local     — создать локально
+.backup list      — список бэкапов
+.backup session   — включить сессию (полный доступ к аккаунту!)
+```
+
+В архив по умолчанию входят: `config.json`, `data/tetko_db`,
+`data/tetko_config`, `modules_custom/`. Сессия — только по явному
+указанию. Авто-бэкапы:
+
+```json
+{
+  "modules": {
+    "Backup": {
+      "config": {
+        "auto_interval_hours": 24
+      }
+    }
+  }
+}
+```
+
+## 14. Системные модули
+
+| Модуль | Команды | Назначение |
+|---|---|---|
+| `ping` | `.ping` | Проверка отклика |
+| `tek` | `.tek`, `.tekcfg`, `.tekhide` | Управление ядром |
+| `dlm` | `.dlm`, `.dlm_check` | Менеджер модулей |
+| `loader` | `.load`, `.unload`, `.unlm` | Динамическая загрузка |
+| `terminal` | `.terminal`, `.t` | Выполнение команд |
+| `setprefix` | `.setprefix` | Смена префикса |
+| `help` | `.help` | Справка по командам |
+| `trusted` | `.trust`, `.untrust`, `.trusted` | Доверенные |
+| `hotreload` | `.hotreload` | Изменения на лету |
+| `backup` | `.backup` | Резервные копии |
+
+## 15. Чего НЕ делать
 ------------------
 
   - Не писать register(kernel) — это старый стиль.

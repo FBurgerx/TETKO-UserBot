@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from telethon import TelegramClient
+from telethon import errors
 
 from core.tetko import Kernel
 from core.tetko.bot import BotClient
@@ -165,8 +166,45 @@ async def main():
 
     console_task = asyncio.create_task(console_reader())
 
+    # ── Supervisor: держит юзербота живым ──
+    # При разрыве связи reconectает, при FloodWait ждёт,
+    # при падении всего процесса перезапускается (если разрешено).
+    async def supervisor():
+        auto_restart = bool(cfg.get("auto_restart", True))
+        while True:
+            try:
+                await client.run_until_disconnected()
+                # сюда попадаем только при штатном разрыве
+                if not client.is_connected():
+                    log.warning("📡 Связь потеряна. Переподключаюсь...")
+                    try:
+                        await client.connect()
+                        log.info("📡 Переподключение выполнено")
+                    except Exception as e:
+                        log.error(f"❌ Переподключение не удалось: {e}")
+                return
+            except errors.FloodWaitError as fw:
+                wait = min(fw.seconds, 600)
+                log.warning(f"⏳ FloodWait на уровне сессии: спим {wait}s")
+                await asyncio.sleep(wait)
+            except (ConnectionError, asyncio.TimeoutError) as e:
+                log.warning(f"📡 Ошибка соединения: {e}. Переподключаюсь...")
+                try:
+                    await client.connect()
+                except Exception as e2:
+                    log.error(f"❌ Не удалось: {e2}")
+                    await asyncio.sleep(10)
+            except (KeyboardInterrupt, SystemExit, asyncio.CancelledError):
+                # Остановка пользователем — выходим, не зацикливаясь.
+                raise
+            except Exception as e:
+                log.exception(f"❌ Supervisor поймал исключение: {e}")
+                if not auto_restart:
+                    raise
+                await asyncio.sleep(5)
+
     try:
-        await client.run_until_disconnected()
+        await supervisor()
     finally:
         if console_task is not None:
             console_task.cancel()

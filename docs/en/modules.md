@@ -229,7 +229,97 @@ If not owner — reply: "🚫 This command is for the owner only."
             self.log.debug("tick")
 
 
-10. What NOT to do
+## 11. Trusted users
+
+Alongside the owner there is a **`trusted`** tier.
+
+```python
+from core.tetko import command
+
+@command(name="mycmd", only_for="trusted")
+async def cmd(self, event, args):
+    ...
+```
+
+| `only_for` | Who can run it |
+|---|---|
+| `None` (default) | Everyone |
+| `"trusted"` | Owner + trusted users |
+| `"owner"` | Owner only |
+
+Management:
+
+```
+.trust @username    — add
+.untrust @username  — remove
+.trusted            — list
+```
+
+The trusted list lives in the DB:
+
+```python
+from core.tetko import db_get, db_set
+
+users: list[int] = db_get("trusted", "users", [])
+db_set("trusted", "users", [123456])
+```
+
+Inline buttons check access too: trusted users may press `@callback`.
+
+## 12. HotReload — apply changes on the fly
+
+Watches `modules/` and `modules_custom/`. Any changed `.py` file is
+unloaded and loaded with the new code automatically — no restart.
+
+```
+.hotreload        — toggle
+.hotreload now    — apply all changes immediately
+.hotreload check  — show what changed
+```
+
+Notifications about applied changes are sent to the owner.
+
+## 13. Backup
+
+```
+.backup           — create and send the archive
+.backup local     — create locally
+.backup list      — list backups
+.backup session   — include the session file (full account access!)
+```
+
+Included by default: `config.json`, `data/tetko_db`, `data/tetko_config`,
+`modules_custom/`. The session file only when explicitly requested.
+Automatic backups:
+
+```json
+{
+  "modules": {
+    "Backup": {
+      "config": {
+        "auto_interval_hours": 24
+      }
+    }
+  }
+}
+```
+
+## 14. System modules
+
+| Module | Commands | Purpose |
+|---|---|---|
+| `ping` | `.ping` | Latency check |
+| `tek` | `.tek`, `.tekcfg`, `.tekhide` | Kernel management |
+| `dlm` | `.dlm`, `.dlm_check` | Module manager |
+| `loader` | `.load`, `.unload`, `.unlm` | Dynamic loading |
+| `terminal` | `.terminal`, `.t` | Shell execution |
+| `setprefix` | `.setprefix` | Change prefix |
+| `help` | `.help` | Command reference |
+| `trusted` | `.trust`, `.untrust`, `.trusted` | Trusted users |
+| `hotreload` | `.hotreload` | Apply changes on the fly |
+| `backup` | `.backup` | Backups |
+
+## 15. What NOT to do
 ------------------
 
   - Don't write register(kernel) — that's the old style.

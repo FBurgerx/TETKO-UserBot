@@ -374,12 +374,14 @@ class BotClient:
             admin_id = self.kernel.context.admin_id
 
         if admin_id is None or sender_id != admin_id:
-            log.warning(f"🤖 Bot callback: отказано sender={sender_id} (owner={admin_id})")
-            try:
-                await event.answer("🚫 Нет доступа", alert=True)
-            except Exception:
-                pass
-            return
+            # доверенные тоже могут нажимать кнопки
+            if not self.kernel.context.is_trusted(sender_id):
+                log.warning(f"🤖 Bot callback: отказано sender={sender_id} (owner={admin_id})")
+                try:
+                    await event.answer("🚫 Нет доступа", alert=True)
+                except Exception:
+                    pass
+                return
 
         data = event.data
         if isinstance(data, bytes):

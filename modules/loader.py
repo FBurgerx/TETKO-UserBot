@@ -3,13 +3,24 @@ import sys
 import re
 import asyncio
 import aiohttp
+from pathlib import Path
+
 from core.tetko import Module, command
+import logging
+
+log = logging.getLogger("TETKO.module.loader")
+
+# Системные модули лежат в modules/, пользовательские — в modules_custom/.
+# .load всегда кладёт в modules_custom/: тогда DLM сможет их обновлять
+# (системные он принципиально не перезаписывает).
+CUSTOM_DIR = Path("modules_custom")
+MODULES_DIR = Path("modules")
 
 
 class Loader(Module):
     name = "Loader"
     __compat__ = "0.0.9.0"
-    version = "1.1.0"
+    version = "1.2.0"
     author = "@anhedonuya & @flexownerAL"
     description = {
         "ru": "Динамическая загрузка, обновление и выгрузка модулей tetko-compat",
@@ -18,6 +29,21 @@ class Loader(Module):
     config = {
         "auto_install_reqs": True,
     }
+
+    def _resolve_path(self, mod_name: str) -> Path:
+        """Найти существующий файл модуля в modules/ или modules_custom/."""
+        for base in (CUSTOM_DIR, MODULES_DIR):
+            p = base / f"{mod_name}.py"
+            if p.exists():
+                return p
+        return CUSTOM_DIR / f"{mod_name}.py"
+
+    def _save_module(self, mod_name: str, code_content: str) -> Path:
+        """Записать код модуля в modules_custom/, вернув путь."""
+        CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
+        path = CUSTOM_DIR / f"{mod_name}.py"
+        path.write_text(code_content, encoding="utf-8")
+        return path
 
     async def _install_requirements(self, code: str, event):
         """Проверяет и автоматически устанавливает pip-зависимости модуля."""
@@ -51,10 +77,11 @@ class Loader(Module):
             )
             if file_name and file_name.endswith(".py"):
                 await event.edit("📥 Скачивание файла модуля...")
-                file_path = await self.client.download_media(reply, file="modules/")
+                file_path = await self.client.download_media(
+                    reply, file=str(CUSTOM_DIR) + "/"
+                )
                 mod_name = os.path.basename(file_path)[:-3]
-                with open(file_path, "r", encoding="utf-8") as f:
-                    code_content = f.read()
+                code_content = Path(file_path).read_text(encoding="utf-8")
             else:
                 await event.edit("❌ Файл должен иметь расширение `.py`.")
                 return
@@ -71,9 +98,7 @@ class Loader(Module):
                     if resp.status == 200:
                         code_content = await resp.text()
                         mod_name = url.split("/")[-1].replace(".py", "").split("?")[0]
-                        file_path = os.path.join("modules", f"{mod_name}.py")
-                        with open(file_path, "w", encoding="utf-8") as f:
-                            f.write(code_content)
+                        file_path = self._save_module(mod_name, code_content)
                     else:
                         await event.edit(f"❌ Ошибка скачивания: HTTP status `{resp.status}`.")
                         return
@@ -87,17 +112,31 @@ class Loader(Module):
         if code_content and self.cfg.get("auto_install_reqs"):
             await self._install_requirements(code_content, event)
 
+        # ── Загрузка в ядро ──
+        # Модуль мог быть уже загружен (например, установлен раньше) —
+        # тогда выгружаем старую версию, иначе ModuleRegistrationError.
+        existing = None
+        if loader and hasattr(loader, "registry") and loader.registry:
+            for reg_name, mod in loader.registry._modules.items():
+                if mod.__module__ == f"tetko_user_modules.{mod_name}":
+                    existing = reg_name
+                    break
+
         await event.edit(f"⚙️ Подключение модуля `{mod_name}`...")
         if loader and hasattr(loader, "load_module_from_file"):
             try:
-                from pathlib import Path
-                await loader.load_module_from_file(Path("modules") / f"{mod_name}.py")
+                if existing:
+                    try:
+                        await loader.unload_module(existing)
+                    except Exception as e:
+                        log.warning(f"load: не удалось выгрузить старую версию {existing}: {e}")
+                await loader.load_module_from_file(file_path)
                 await event.edit(f"✅ Модуль `{mod_name}` успешно загружен в TETKO!")
             except Exception as e:
                 await event.edit(f"❌ Ошибка при инициализации модуля `{mod_name}`:\n`{e}`")
         else:
             await event.edit(
-                f"✅ Файл `modules/{mod_name}.py` сохранён. Перезапустите бота."
+                f"✅ Файл `modules_custom/{mod_name}.py` сохранён. Перезапустите бота."
             )
 
     @command("unload", doc="Выгрузить и удалить модуль")
@@ -113,32 +152,43 @@ class Loader(Module):
         if loader and hasattr(loader, "unload_module"):
             await loader.unload_module(mod_name)
 
-        file_path = os.path.join("modules", f"{mod_name}.py")
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        # Ищем файл в обеих папках
+        removed = []
+        for base in (CUSTOM_DIR, MODULES_DIR):
+            file_path = base / f"{mod_name}.py"
+            if file_path.exists():
+                try:
+                    file_path.unlink()
+                    removed.append(str(file_path))
+                except Exception as e:
+                    log.warning(f"unload: не удалось удалить {file_path}: {e}")
 
-        await event.edit(f"🗑 Модуль `{mod_name}` выгружен и удалён.")
+        if removed:
+            await event.edit(
+                f"🗑 Модуль `{mod_name}` выгружен и удалён.\n"
+                f"<i>Удалено файлов:</i> {len(removed)}",
+                parse_mode="html",
+            )
+        else:
+            await event.edit(f"⚠ Модуль `{mod_name}` не найден в файлах (возможно, загружен как зависимость).")
 
-    @command(
-        "unlm",
-        aliases=["getmod", "sendmod"],
-        doc="Отправить файл модуля в чат",
-        only_for="owner",
-    )
+    @command("unlm", aliases=["getmod", "sendmod"], doc="Отправить файл модуля в чат", only_for="owner")
     async def cmd_unlm(self, event, args):
-        """Выгрузить файл модуля из modules/ прямо в чат.
+        """Выгрузить файл модуля прямо в чат (modules/ или modules_custom/).
 
         Использование:
-          .unlm <имя>    — отправить modules/<имя>.py
+          .unlm <имя>    — отправить файл модуля
           .unlm          — список доступных модулей
         """
-        modules_dir = "modules"
-
         if not args:
-            installed = sorted([
-                f[:-3] for f in os.listdir(modules_dir)
-                if f.endswith(".py") and not f.startswith("_")
-            ]) if os.path.isdir(modules_dir) else []
+            installed = sorted(
+                [
+                    f.stem
+                    for base in (CUSTOM_DIR, MODULES_DIR)
+                    for f in base.glob("*.py")
+                    if not f.name.startswith("_")
+                ]
+            )
             if not installed:
                 await event.edit("📂 Нет установленных модулей")
                 return
@@ -154,8 +204,8 @@ class Loader(Module):
         if name.endswith(".py"):
             name = name[:-3]
 
-        path = os.path.join(modules_dir, f"{name}.py")
-        if not os.path.exists(path):
+        path = self._resolve_path(name)
+        if not path.exists():
             await event.edit(
                 f"❌ Модуль <code>{name}</code> не найден",
                 parse_mode="html",
