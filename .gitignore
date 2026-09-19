@@ -67,3 +67,7 @@ modules_custom/**/*.py
 modules_custom/*.bak
 
 bump.sh
+
+# Системный скриншот и логи
+/file_00000000c200820a83d1e6b173baf0f3.png
+/logs/
