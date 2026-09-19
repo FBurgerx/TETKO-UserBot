@@ -1,4 +1,4 @@
-# TETKO UserBot
+# TETKO UserBot original by @anhedonuya
 
 Версия **0.0.9.8**. Юзербот для Telegram на базе Telethon.
 
